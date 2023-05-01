@@ -1,0 +1,4 @@
+Pillow==9.5.0
+requests==2.29.0
+customtkinter==5.1.2
+twilio==8.1.0
