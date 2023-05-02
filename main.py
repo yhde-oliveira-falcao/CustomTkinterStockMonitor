@@ -1,9 +1,16 @@
-import threading
-from tkinter import *
+import tkinter
 from tkinter import messagebox
+
+import customtkinter
+from PIL import Image, ImageTk
+
 import requests as requests
 import time
+
+from customtkinter import CTkEntry, CTkButton
 from twilio.rest import Client
+import threading
+
 
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
@@ -19,7 +26,6 @@ running = True
 
 # locks the thread to run a instance until the instance is over (finished or flagged off
 lock = threading.Lock()
-
 
 def test_update_price(ticker, target):
     global running
@@ -75,12 +81,11 @@ def update_price(ticker, target):
                 for article in formatted_articles:
                     client.messages.create(
                         body=article,
-                        from_="+16477993157",
-                        to="+16478353811"
+                        from_="+",
+                        to="+"
                     )
             #time.sleep(86400)
             time.sleep(5)
-
 
 def end_monitor():
     global running
@@ -92,7 +97,7 @@ def check_running(ticker, target):
     if running:
         # update_price(ticker, target)
         threading.Thread(target=update_price, args=(ticker, target)).start()
-        window.after(3000, check_running, ticker, target)
+        app.after(3000, check_running, ticker, target)
 
 
 def monitor():  # running in the main thread (same as GUI
@@ -114,33 +119,58 @@ def monitor():  # running in the main thread (same as GUI
             check_running(ticker, target)
 
 
-if __name__ == '__main__':
-    window = Tk()
-    window.title("Stock Price Monitor")
-    window.config(padx=100, pady=100)
 
-    # Labels
-    stock_label = Label(text="Stock:")
-    stock_label.grid(row=1, column=0)
+# GUI SETTING ==========================================================
 
-    target_label = Label(text="Target Price")
-    target_label.grid(row=1, column=1)
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-    # Entries
-    stock_name_entry = Entry(width=10)
-    stock_name_entry.grid(row=2, column=0, columnspan=1)
-    stock_name_entry.focus()
+app = customtkinter.CTk()
+app.geometry("500x400")
+app.title("Ola Mundo")
 
-    target_price_entry = Entry(width=10)
-    target_price_entry.grid(row=2, column=1, columnspan=1)
-    target_price_entry.focus()
+# Open and resize the image
+image = Image.open("logo.png")
+image = image.resize((120, 50))
 
-    # Buttons
-    add_button = Button(text="Monitor", width=10,
-                        command=monitor)  # command=save (to call the function save ==line 7 on my github tutorial
-    add_button.grid(row=4, column=0, columnspan=2)
+# Convert the image to a Tkinter PhotoImage object
+photo = ImageTk.PhotoImage(image)
 
-    add_button = Button(text="End Monitor", width=10, command=end_monitor)
-    add_button.grid(row=6, column=0, columnspan=2)
+# def button_callback():
+# label_2.configure(text="Pythonista, Olá Mundo")
 
-    window.mainloop()
+
+frame_1 = customtkinter.CTkFrame(master=app)
+frame_1.pack(pady=20, padx=60, fill="both", expand=True)
+
+sub_frame1 = customtkinter.CTkFrame(master=frame_1, width=20, height=20)
+sub_frame1.grid(row=0, column=0, pady=5, padx=5, sticky="")
+sub_frame1.configure(width=100, height=50)
+
+# Create a label to display the image
+label = customtkinter.CTkLabel(sub_frame1, image=photo, text="")
+label.grid()
+
+label_1 = customtkinter.CTkLabel(master=frame_1, text="Monitor de Ações da Bolsa", justify=customtkinter.CENTER, font=("TkDefaultFont", 16, "bold"))
+label_1.place(relx=0.5, rely=0.25, anchor=tkinter.CENTER)
+
+# Entries and Buttons
+stock_label = customtkinter.CTkLabel(master=frame_1, text="Stock")
+stock_label.place(relx=0.3, rely=0.4, anchor=tkinter.CENTER)
+
+stock_name_entry = customtkinter.CTkEntry(master=frame_1)
+stock_name_entry.place(relx=0.3, rely=0.5, anchor=tkinter.CENTER)
+
+target_label = customtkinter.CTkLabel(master=frame_1, text="Target")
+target_label.place(relx=0.7, rely=0.4, anchor=tkinter.CENTER)
+
+target_price_entry = customtkinter.CTkEntry(master=frame_1)
+target_price_entry.place(relx=0.7, rely=0.5, anchor=tkinter.CENTER)
+
+submit_button = customtkinter.CTkButton(master=frame_1, text="Monitor", command=monitor)
+submit_button.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
+
+end_monitor_button = customtkinter.CTkButton(master=frame_1, text="End Monitor", command=end_monitor)
+end_monitor_button.place(relx=0.5, rely=0.9, anchor=tkinter.CENTER)
+
+app.mainloop()
